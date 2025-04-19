@@ -11,4 +11,6 @@ urlpatterns = [
     path('delete/', views.delete_account, name='delete_account'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('chat/<int:user_id>/', views.start_chat, name='start_chat'),
+    path('search/', views.search_users, name='search_users'),
+    path('profile/update/', views.profile_update, name='profile_update'),
 ]
