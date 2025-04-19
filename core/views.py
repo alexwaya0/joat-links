@@ -2,10 +2,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from .forms import RegistrationForm, LoginForm, ProfileUpdateForm
-from .models import CustomUser
+from .models import CustomUser, ChatMessage
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-
+from django.http import JsonResponse
 
 def register(request):
     if request.method == 'POST':
@@ -21,7 +21,6 @@ def register(request):
         form = RegistrationForm()
     return render(request, 'core/register.html', {'form': form})
 
-
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
@@ -35,14 +34,12 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'core/login.html', {'form': form})
 
-
 def logout_view(request):
     user = request.user
     user.online_status = False
     user.save()
     logout(request)
     return redirect('login')
-
 
 @login_required
 def profile_update(request):
@@ -56,7 +53,6 @@ def profile_update(request):
         form = ProfileUpdateForm(instance=user)
     return render(request, 'core/profile_update.html', {'form': form})
 
-
 @login_required
 def deactivate_account(request):
     user = request.user
@@ -65,14 +61,12 @@ def deactivate_account(request):
     logout(request)
     return redirect('login')
 
-
 @login_required
 def delete_account(request):
     user = request.user
     logout(request)
     user.delete()
     return redirect('register')
-
 
 @login_required
 def dashboard(request):
@@ -84,4 +78,20 @@ def dashboard(request):
         location=user.location,
     ).exclude(id=user.id)
     return render(request, 'core/dashboard.html', {'matches': matches})
+
+@login_required
+def start_chat(request, user_id):
+    other_user = get_object_or_404(CustomUser, id=user_id)
+
+    if request.method == 'POST':
+        message = request.POST.get('message')
+        if message:
+            ChatMessage.objects.create(sender=request.user, receiver=other_user, message=message)
+
+    messages = ChatMessage.objects.filter(
+        (models.Q(sender=request.user) & models.Q(receiver=other_user)) |
+        (models.Q(sender=other_user) & models.Q(receiver=request.user))
+    ).order_by('timestamp')
+
+    return render(request, 'core/chat.html', {'messages': messages, 'other_user': other_user})
 

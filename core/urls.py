@@ -10,4 +10,5 @@ urlpatterns = [
     path('deactivate/', views.deactivate_account, name='deactivate_account'),
     path('delete/', views.delete_account, name='delete_account'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('chat/<int:user_id>/', views.start_chat, name='start_chat'),
 ]
