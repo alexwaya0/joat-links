@@ -11,16 +11,18 @@ from django.contrib import messages
 from datetime import timedelta
 
 
-def register(request):
+def register_view(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = True
-            user.is_verified = True
+            user.is_verified = True  # Modify as needed for future verification logic
             user.save()
             login(request, user)
+            messages.success(request, 'Registration successful!')
             return redirect('dashboard')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = RegistrationForm()
     return render(request, 'core/register.html', {'form': form})
@@ -38,14 +40,6 @@ def search_users(request):
     else:
         results = CustomUser.objects.none()
     return render(request, 'core/search_results.html', {'results': results, 'query': query})
-
-
-def logout_view(request):
-    user = request.user
-    user.online_status = False
-    user.save()
-    logout(request)
-    return redirect('login')
 
 @login_required
 def profile_update(request):
@@ -74,6 +68,12 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'core/login.html', {'form': form})
 
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'You have successfully logged out.')
+    return redirect('login')
+    
 @login_required
 def deactivate_account(request):
     user = request.user
