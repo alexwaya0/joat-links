@@ -8,8 +8,9 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.db.models import Q
 from django.contrib import messages
-from datetime import timedelta
+from django.views.decorators.http import require_GET
 
+from datetime import timedelta
 
 def register_view(request):
     if request.method == 'POST':
@@ -36,10 +37,35 @@ def search_users(request):
             Q(username__icontains=query) | Q(location__icontains=query),
             gender=user.preferred_gender,
             is_active=True,
+            online_status=True
         ).exclude(id=user.id)
     else:
-        results = CustomUser.objects.none()
+        results = CustomUser.objects.filter(
+            gender=user.preferred_gender,
+            is_active=True,
+            online_status=True
+        ).exclude(id=user.id)
     return render(request, 'core/search_results.html', {'results': results, 'query': query})
+
+@require_GET
+@login_required
+def live_online_users(request):
+    user = request.user
+    users = CustomUser.objects.filter(
+        gender=user.preferred_gender,
+        is_active=True,
+        online_status=True
+    ).exclude(id=user.id)
+    data = [
+        {
+            'username': u.username,
+            'age': u.age(),
+            'location': u.location,
+            'profile_picture': u.profile_picture.url if u.profile_picture else '',
+            'gender': u.get_gender_display()
+        } for u in users
+    ]
+    return JsonResponse({'users': data})
 
 @login_required
 def profile_update(request):
@@ -59,6 +85,8 @@ def login_view(request):
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            user.online_status = True
+            user.save()
             login(request, user)
             messages.success(request, 'You have successfully logged in.')
             return redirect('dashboard')
@@ -68,12 +96,14 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'core/login.html', {'form': form})
 
-
 def logout_view(request):
+    user = request.user
+    user.online_status = False
+    user.save()
     logout(request)
-    messages.success(request, 'You have successfully logged out.')
     return redirect('login')
-    
+
+
 @login_required
 def deactivate_account(request):
     user = request.user

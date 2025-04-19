@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}JOAT LINKS{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #fff0f6;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .card {
+      transition: 0.3s ease-in-out;
+    }
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 15px rgba(255, 0, 132, 0.2);
+    }
+    .card-title {
+      color: #e83e8c;
+    }
+    .sticky-top {
+      z-index: 1030;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="/">JOAT LINKS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/dashboard/">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/profile/update/">Profile</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav">
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="btn btn-outline-danger" href="/logout/">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="btn btn-outline-primary" href="/login/">Login</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
