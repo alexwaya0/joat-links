@@ -9,13 +9,13 @@
       <label for="username" class="form-label">Username</label>
       <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
     </div>
-    <div class="mb-3">
+    <!-- <div class="mb-3">
       <label for="profile_picture" class="form-label">Profile Picture</label>
-      <input type="file" class="form-control" id="profile_picture" name="profile_picture">
-    </div>
+      <input type="file" class="form-control" id="profile_picture" name="profile_picture" vakue="{{ user.profile_picture.url }}">
+    </div> -->
     <div class="mb-3">
       <label for="location" class="form-label">Location</label>
-      <input type="text" class="form-control" id="location" name="location" value="{{ user.profile.location }}" required>
+      <input type="text" class="form-control" id="location" name="location" value="{{ user.location }}" required>
     </div>
     <button type="submit" class="btn btn-danger">Update Profile</button>
   </form>

@@ -24,6 +24,13 @@
     .sticky-top {
       z-index: 1030;
     }
+    .navbar-avatar {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
   </style>
 </head>
 <body>
@@ -36,7 +43,7 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="#">Home</a>
+            <a class="nav-link" href="/">Home</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/dashboard/">Dashboard</a>
@@ -47,6 +54,12 @@
         </ul>
         <ul class="navbar-nav">
           {% if user.is_authenticated %}
+          <li class="nav-item d-flex align-items-center me-3">
+            {% if user.profile_picture %}
+              <img src="{{ user.profile_picture.url }}" alt="Avatar" class="navbar-avatar">
+            {% endif %}
+            <span class="fw-semibold">{{ user.username }}</span>
+          </li>
           <li class="nav-item">
             <a class="btn btn-outline-danger" href="/logout/">Logout</a>
           </li>

@@ -12,6 +12,11 @@ from django.views.decorators.http import require_GET
 
 from datetime import timedelta
 
+
+# from .models import UserProfile  # Assuming you have a UserProfile model with preferred gender field
+
+
+
 def register_view(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST, request.FILES)
@@ -50,22 +55,24 @@ def search_users(request):
 @require_GET
 @login_required
 def live_online_users(request):
-    user = request.user
-    users = CustomUser.objects.filter(
-        gender=user.preferred_gender,
-        is_active=True,
-        online_status=True
-    ).exclude(id=user.id)
-    data = [
-        {
-            'username': u.username,
-            'age': u.age(),
-            'location': u.location,
-            'profile_picture': u.profile_picture.url if u.profile_picture else '',
-            'gender': u.get_gender_display()
-        } for u in users
-    ]
-    return JsonResponse({'users': data})
+    # Get the logged-in user's preferred gender
+    preferred_gender = request.user.profile.preferred_gender
+    
+    # Get all users online (filtered by preferred gender)
+    # Assuming we have a method `is_online` that checks if a user is online
+    online_users = UserProfile.objects.filter(gender=preferred_gender, is_online=True)
+    
+    users_data = []
+    for user in online_users:
+        users_data.append({
+            'username': user.user.username,
+            'profile_picture': user.profile_picture.url if user.profile_picture else '',
+            'age': user.age,
+            'gender': user.gender,
+            'location': user.location,
+        })
+
+    return JsonResponse({'users': users_data})
 
 @login_required
 def profile_update(request):
@@ -75,7 +82,7 @@ def profile_update(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Your profile was updated successfully!')
-            return redirect('profile_update')
+            return redirect('dashboard')
     else:
         form = ProfileUpdateForm(instance=user)
     return render(request, 'core/profile_update.html', {'form': form})
